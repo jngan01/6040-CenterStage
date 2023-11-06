@@ -81,10 +81,10 @@ public class OldSchoolTeleOp extends LinearOpMode {
                 rightFront.setPower(.3*frontRightPower);
                 rightBack.setPower(.3*backRightPower);
             } else {
-                leftFront.setPower(.85*frontLeftPower);
-                leftBack.setPower(.85*backLeftPower);
-                rightFront.setPower(.85*frontRightPower);
-                rightBack.setPower(.85*backRightPower);
+                leftFront.setPower(1*frontLeftPower);
+                leftBack.setPower(1*backLeftPower);
+                rightFront.setPower(1*frontRightPower);
+                rightBack.setPower(1*backRightPower);
             }
 
             topLift.setPower(-gamepad2.left_stick_y);
