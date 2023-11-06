@@ -40,10 +40,10 @@ public class PowerPlayLeftAutoWithAprilTags extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
 
-        lf = hardwareMap.get(DcMotor.class, "lf");
-        lb = hardwareMap.get(DcMotor.class, "lb");
-        rf = hardwareMap.get(DcMotor.class, "rf");
-        rb = hardwareMap.get(DcMotor.class, "rb");
+        lf = hardwareMap.get(DcMotor.class, "leftFront");
+        lb = hardwareMap.get(DcMotor.class, "leftBack");
+        rf = hardwareMap.get(DcMotor.class, "rightFront");
+        rb = hardwareMap.get(DcMotor.class, "rightBack");
         fourBar = hardwareMap.get(DcMotor.class, "fourBar");
         //claw = hardwareMap.crservo.get("clawIntake");
 
@@ -95,7 +95,7 @@ public class PowerPlayLeftAutoWithAprilTags extends LinearOpMode{
         fourBar.setPower(.9);
         sleep(800);
         fourBar.setPower(0.25);
-        telemetry.addLine("Pre-AprilTag Detection");
+
 
         while (!isStopRequested() && opModeIsActive()) {
 
@@ -169,10 +169,10 @@ public class PowerPlayLeftAutoWithAprilTags extends LinearOpMode{
                     sleep(250);
                     drive(0);
                     strafe(-.5);
-                    sleep(2500);
+                    sleep(1500);
                     strafe(0);
                     drive(.5);
-                    sleep(1250);
+                    sleep(975);
                     drive(0);
                     fourBar.setPower(0.0);
                     stop();
@@ -200,10 +200,10 @@ public class PowerPlayLeftAutoWithAprilTags extends LinearOpMode{
                     sleep(250);
                     drive(0);
                     strafe(-.5);
-                    sleep(300);
+                    sleep(150);
                     strafe(0);
                     drive(.5);
-                    sleep(1250);
+                    sleep(900);
                     drive(0);
                     fourBar.setPower(0.0);
                     stop();
@@ -236,10 +236,10 @@ public class PowerPlayLeftAutoWithAprilTags extends LinearOpMode{
                     sleep(250);
                     drive(0);
                     strafe(.5);
-                    sleep(2500);
+                    sleep(1300);
                     strafe(0);
                     drive(.5);
-                    sleep(1200);
+                    sleep(900);
                     drive(0);
                     fourBar.setPower(0.0);
                     stop();
