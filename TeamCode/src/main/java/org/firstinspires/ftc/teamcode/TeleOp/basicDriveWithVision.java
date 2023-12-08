@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import android.annotation.SuppressLint;
 import android.provider.ContactsContract;
@@ -6,7 +6,7 @@ import android.text.TextPaint;
 import android.util.Size;
 
 import com.qualcomm.hardware.ams.AMSColorSensor;
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.BHI260IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -56,10 +56,10 @@ public class basicDriveWithVision extends LinearOpMode {
 
 
 
-        BNO055IMU imu = hardwareMap.get(BNO055IMU.class, "imu");
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        imu.initialize(parameters);
+        /*BHI260IMU imu = hardwareMap.get(BHI260IMU.class, "imu");
+        BHI260IMU.Parameters parameters = new BHI260IMU.Parameters();
+        parameters.angleUnit = BHI260IMU.AngleUnit.RADIANS;
+        imu.initialize(parameters); */
 
         AprilTagProcessor tagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)

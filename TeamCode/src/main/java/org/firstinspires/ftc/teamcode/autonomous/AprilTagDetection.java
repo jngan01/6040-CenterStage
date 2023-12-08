@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainCon
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
+import java.util.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +29,12 @@ public class AprilTagDetection extends LinearOpMode {
     private int lbPos;
     private int rfPos;
     private int rbPos;
+
+    public static final double ticksPerMotorRev = 383.6;
+    public static final double driveGearReduction = 0.5;
+    public static final double wheelDiameterInches = 4;
+    public static final double ticksPerDriveInch = (ticksPerMotorRev * driveGearReduction) / (wheelDiameterInches * 3.14159265359);
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -83,6 +90,18 @@ public class AprilTagDetection extends LinearOpMode {
 
         while (!isStopRequested() && opModeIsActive()) {
 
+            int lfEncoderPosition = lf.getCurrentPosition();
+            int lbEncoderPosition = lb.getCurrentPosition();
+            int rfEncoderPosition = rf.getCurrentPosition();
+            int rbEncoderPosition = rb.getCurrentPosition();
+
+            telemetry.addData("LF", lfEncoderPosition);
+            telemetry.addData("LB", lbEncoderPosition);
+            telemetry.addData("RF", rfEncoderPosition);
+            telemetry.addData("RB", rbEncoderPosition);
+
+            telemetry.update();
+
             if (tagProcessor.getDetections().size() > 0) {
                 org.firstinspires.ftc.vision.apriltag.AprilTagDetection tag = tagProcessor.getDetections().get(0);
 
@@ -92,7 +111,7 @@ public class AprilTagDetection extends LinearOpMode {
                 telemetry.addData("exposure", exposure.isExposureSupported());
 
                 //A lot of these are optional. Use whatever.
-                //telemetry.addData("Center", tag.center);
+                telemetry.addData("Center", tag.center);
                 //telemetry.addData("roll", tag.ftcPose.roll);
                 //telemetry.addData("pitch", tag.ftcPose.pitch);
                 telemetry.addData("yaw", tag.ftcPose.yaw);
@@ -101,6 +120,13 @@ public class AprilTagDetection extends LinearOpMode {
                 //telemetry.addData("bearing", tag.ftcPose.bearing);
                 //telemetry.addData("elevation", tag.ftcPose.elevation);
 
+
+                //double xDistanceToCenter = tag.center - tag.ftcPose.x;
+                //double rotationsToCenter = xDistanceToCenter;
+
+                //telemetry.addData("Distance to center", xDistanceToCenter);
+
+
                 if (tag.id == 4) {
 
                     drive(0, 0, 0, 0, 0);
@@ -108,6 +134,7 @@ public class AprilTagDetection extends LinearOpMode {
                 }
 
             }
+
         }
 
         while (opModeIsActive() && lf.isBusy() && lb.isBusy() && rf.isBusy() && rb.isBusy()) {
@@ -135,6 +162,7 @@ public class AprilTagDetection extends LinearOpMode {
         rf.setPower(speed);
         rb.setPower(speed);
     }
+
 
     }
 

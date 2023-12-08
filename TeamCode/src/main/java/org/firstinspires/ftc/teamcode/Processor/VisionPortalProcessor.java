@@ -5,12 +5,23 @@ import android.graphics.Color;
 import android.graphics.Paint;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.vision.VisionProcessor;
+import org.opencv.core.Core;
 import org.opencv.core.Rect;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 public class VisionPortalProcessor implements VisionProcessor {
     // Creation of a rectangle with camera cords and size.
-    public Rect rect = new Rect(20, 20, 50, 50);
+    public Rect rectLeft = new Rect(110, 42, 80, 80);
+    public Rect rectMiddle = new Rect(260, 42, 80, 80);
+    public Rect rectRight = new Rect(400, 42, 80, 80);
+    Selected selection = Selected.NONE;
+
+    Mat submat = new Mat();
+    Mat hsvMat = new Mat();
 
     @Override
     public  void  init(int width, int height, CameraCalibration calibration){
@@ -19,7 +30,27 @@ public class VisionPortalProcessor implements VisionProcessor {
 
     @Override
     public Object processFrame(Mat frame, long captureTimeNanos){
-        return null;
+        Imgproc.cvtColor(frame, hsvMat, Imgproc.COLOR_RGB2HSV);
+
+        double satRectLeft = getAvgSaturation(hsvMat, rectRight);
+        double satRectMiddle = getAvgSaturation(hsvMat, rectMiddle);
+        double satRectRight = getAvgSaturation(hsvMat, rectRight);
+
+        if((satRectLeft > satRectMiddle) && (satRectLeft > satRectRight)) {
+            return Selected.LEFT;
+        }else if ((satRectMiddle > satRectLeft) && (satRectMiddle > satRectRight)){
+            return Selected.MIDDLE;
+        }
+            return Selected.RIGHT;
+
+
+
+    }
+
+    protected double getAvgSaturation(Mat input, Rect rect){
+        submat = input.submat(rect);
+        Scalar color = Core.mean(submat);
+        return color.val[1];
     }
 
     // Conversion from OpenCV camera rectangle to an android.graphics.Rect.
@@ -32,14 +63,53 @@ public class VisionPortalProcessor implements VisionProcessor {
         return new android.graphics.Rect(left, top, right, bottom);
     }
     @Override
-    public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreebHeight, float scaleBmpPxToCanvasPx,
+    public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx,
                             float scaleCanvasDensity, Object userContext){
         //Setting up the actual drawing of the rectangle
-        Paint rectPaint = new Paint();
-        rectPaint.setColor(Color.RED);
-        rectPaint.setStyle(Paint.Style.STROKE);
-        rectPaint.setStrokeWidth(scaleCanvasDensity * 4);
+        Paint selectedPaint = new Paint();
+        selectedPaint.setColor(Color.RED);
+        selectedPaint.setStyle(Paint.Style.STROKE);
+        selectedPaint.setStrokeWidth(scaleCanvasDensity * 4);
 
-        canvas.drawRect(makeGraphicsRect(rect, scaleBmpPxToCanvasPx), rectPaint);
+        Paint nonSelectedPaint = new Paint(selectedPaint);
+        nonSelectedPaint.setColor(Color.GREEN);
+
+        android.graphics.Rect drawRectangleLeft = makeGraphicsRect(rectLeft, scaleBmpPxToCanvasPx);
+        android.graphics.Rect drawRectangleMiddle = makeGraphicsRect(rectMiddle, scaleBmpPxToCanvasPx);
+        android.graphics.Rect drawRectangleRight = makeGraphicsRect(rectRight, scaleBmpPxToCanvasPx);
+        selection = (Selected) userContext;
+
+        switch (selection){
+            case LEFT:
+                canvas.drawRect(drawRectangleLeft, selectedPaint);
+                canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
+                canvas.drawRect(drawRectangleRight, nonSelectedPaint);
+                break;
+            case MIDDLE:
+                canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
+                canvas.drawRect(drawRectangleMiddle, selectedPaint);
+                canvas.drawRect(drawRectangleRight, nonSelectedPaint);
+                break;
+            case RIGHT:
+                canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
+                canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
+                canvas.drawRect(drawRectangleRight, selectedPaint);
+                break;
+            case NONE:
+                canvas.drawRect(drawRectangleLeft, nonSelectedPaint);
+                canvas.drawRect(drawRectangleMiddle, nonSelectedPaint);
+                canvas.drawRect(drawRectangleRight, nonSelectedPaint);
+                break;
+        }
+    }
+    public Selected getSelection(){
+
+        return selection;
+    }
+    public enum Selected {
+        NONE,
+        LEFT,
+        MIDDLE,
+        RIGHT
     }
 }

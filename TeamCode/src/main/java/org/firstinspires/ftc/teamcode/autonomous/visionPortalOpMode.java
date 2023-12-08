@@ -24,10 +24,12 @@ public class visionPortalOpMode extends OpMode{
     @Override
     public void start(){
 
-        visionPortal.stopStreaming();
+        //visionPortal.stopStreaming();
     }
     @Override
     public void loop(){
-        
+
+        telemetry.addData("Identified", visionPortalProcessor.getSelection());
+
     }
 }

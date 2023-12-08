@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.autonomous;
+package org.firstinspires.ftc.teamcode.pastSeasons;
 import android.util.Size;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -19,6 +20,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagLibrary;
 
 import java.util.concurrent.TimeUnit;
 
+
+@Disabled
 @Autonomous
 public class PowerPlayLeftAutoWithAprilTags extends LinearOpMode{
 
@@ -243,6 +246,7 @@ public class PowerPlayLeftAutoWithAprilTags extends LinearOpMode{
                     drive(0);
                     fourBar.setPower(0.0);
                     stop();
+                    
 
                 }
 
