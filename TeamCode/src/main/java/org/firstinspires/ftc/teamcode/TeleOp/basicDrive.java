@@ -4,7 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp
 public class basicDrive extends LinearOpMode {
@@ -14,14 +17,17 @@ public class basicDrive extends LinearOpMode {
     private DcMotor rf;
     private DcMotor rb;
 
+    private DcMotor rightHang;
     private DcMotor arm;
     private Servo rotator;
     private Servo wrist;
-    private CRServo clamp;
+    private Servo clamp;
     private CRServo drone;
-    private CRServo leftIntake;
-    private CRServo rightIntake;
+    private Servo leftIntake;
+    private Servo rightIntake;
 
+    private DistanceSensor distanceSensorLeft;
+    private DistanceSensor distanceSensorRight;
     private int armPos;
 
     @Override
@@ -32,13 +38,20 @@ public class basicDrive extends LinearOpMode {
         rf = hardwareMap.get(DcMotor.class, "rf");
         rb = hardwareMap.get(DcMotor.class, "rb");
 
+        rightHang = hardwareMap.get(DcMotor.class, "rightHang");
         arm = hardwareMap.get(DcMotor.class, "arm");
         rotator = hardwareMap.get(Servo.class, "rotator");
         wrist = hardwareMap.get(Servo.class, "wrist");
-        clamp = hardwareMap.get(CRServo.class, "clamp");
+        clamp = hardwareMap.get(Servo.class, "clamp");
         drone = hardwareMap.get(CRServo.class, "drone");
-        leftIntake = hardwareMap.get(CRServo.class, "leftIntake");
-        rightIntake = hardwareMap.get(CRServo.class, "rightIntake");
+        leftIntake = hardwareMap.get(Servo.class, "leftIntake");
+        rightIntake = hardwareMap.get(Servo.class, "rightIntake");
+        distanceSensorLeft = hardwareMap.get(DistanceSensor.class, "distanceSensorLeft");
+        distanceSensorRight = hardwareMap.get(DistanceSensor.class, "distanceSensorRight");
+
+
+
+        boolean pixelScannerOn = false;
 
 
 
@@ -46,13 +59,13 @@ public class basicDrive extends LinearOpMode {
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER );
 
         armPos = 0;
-        wrist.setPosition(0.05);
+        wrist.setPosition(0);
         rotator.setPosition(0);
         boolean isOpen = false;
 
 
-        lf.setDirection(DcMotor.Direction.REVERSE);
-        lb.setDirection(DcMotor.Direction.REVERSE);
+        rf.setDirection(DcMotor.Direction.REVERSE);
+        rb.setDirection(DcMotor.Direction.REVERSE);
 
         lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -67,8 +80,20 @@ public class basicDrive extends LinearOpMode {
         while (!isStopRequested() && opModeIsActive()) {
 
             double y = -gamepad1.left_stick_y; // Remember, this is reversed!
-            double x = gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+            double x = gamepad1.left_stick_x; //* 1.1; // Counteract imperfect strafing
             double rx = gamepad1.right_stick_x;
+
+            arm.setPower(gamepad2.left_stick_y * .7);
+
+            /*if(gamepad2.left_stick_y > 0){
+                arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER );
+                arm.setPower(gamepad2.left_stick_y * .7);
+            } else{
+                arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+                armPos = arm.getCurrentPosition();
+                arm.setTargetPosition(armPos);
+            } */
+
 
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio, but only when
@@ -78,6 +103,44 @@ public class basicDrive extends LinearOpMode {
             double backLeftPower = (y - x + rx) / denominator;
             double frontRightPower = (y - x - rx) / denominator;
             double backRightPower = (y + x - rx) / denominator;
+
+            telemetry.update();
+
+            rightHang.setPower(gamepad2.right_stick_x);
+
+            telemetry.addData("Range:", String.format("%.01f cm", distanceSensorLeft.getDistance(DistanceUnit.CM)));
+            telemetry.addData("Range:", String.format("%.01f cm", distanceSensorRight.getDistance(DistanceUnit.CM)));
+
+            if(gamepad1.a){
+
+
+                leftIntake.setPosition(1);
+                rightIntake.setPosition(0);
+
+                if(leftIntake.getPosition() >= .8 && rightIntake.getPosition() <= .2){
+                    pixelScannerOn = true;
+
+                }
+
+
+            }
+            if(gamepad1.b){
+                pixelScannerOn = false;
+                leftIntake.setPosition(0);
+                rightIntake.setPosition(1);
+            }
+
+            if(pixelScannerOn == true){
+                if(distanceSensorLeft.getDistance(DistanceUnit.CM) <= 5.2 || distanceSensorRight.getDistance(DistanceUnit.CM) <= 5.2){
+
+                    leftIntake.setPosition(0);
+                    rightIntake.setPosition(1);
+                    pixelScannerOn = false;
+                    telemetry.update();
+                }
+            }
+
+
 
             if (gamepad1.right_bumper) {
                 lf.setPower(-.4 * frontLeftPower);
@@ -103,30 +166,30 @@ public class basicDrive extends LinearOpMode {
             }
 
             // Launch Drone
-            if(gamepad2.x){
+            if(gamepad1.x){
                 drone.setPower(1);
             } else{
                 drone.setPower(0);
             }
 
-            //Intake toggle
-            if(gamepad2.y && isOpen){
+            //Intake
+            if(gamepad2.y){
 
-                leftIntake.setPower(.5);
-                rightIntake.setPower(-.5);
-                isOpen = false;
-            } else if(gamepad2.y && !isOpen) {
-                leftIntake.setPower(-.5);
-                rightIntake.setPower(.5);
-                isOpen = true;
+                leftIntake.setPosition(1);
+                rightIntake.setPosition(0);
+
+            } else if(gamepad2.x) {
+                leftIntake.setPosition(0);
+                rightIntake.setPosition(1);
+
             }
 
             // Pixel release failsafe
             if(gamepad2.left_bumper){
-                clamp.setPower(.5);
+                clamp.setPosition(.75);
             }
             if(gamepad2.right_bumper){
-                clamp.setPower(-.5);
+                clamp.setPosition(.25);
             }
 
             // To adjust claw angle when placing on the Backdrop
@@ -141,16 +204,15 @@ public class basicDrive extends LinearOpMode {
 
 
             // Reset the arm and claw positions
-            if(gamepad2.b){
+           if(gamepad2.b){
 
-                clamp.setPower(1);
-                sleep(250);
+                clamp.setPosition(.4);
                 rotator.setPosition(0);
                 sleep(250);
-                wrist.setPosition(.05);
+                wrist.setPosition(.0);
 
                 //Pick up pixel and bring up.
-            } else if(gamepad2.a){
+            } /* else if(gamepad2.a){
 
                 arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER );
                 clamp.setPower(-1);
@@ -163,8 +225,8 @@ public class basicDrive extends LinearOpMode {
             } else if(!gamepad2.a && !gamepad2.b){
 
                 arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER );
-                arm.setPower(gamepad1.left_stick_x * .5);
-            }
+                arm.setPower(gamepad2.left_stick_x * .5);
+            } */
         }
 
     }

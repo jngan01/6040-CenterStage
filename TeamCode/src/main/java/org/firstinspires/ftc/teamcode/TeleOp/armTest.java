@@ -14,6 +14,9 @@ public class armTest extends LinearOpMode {
     private Servo wrist;
     private CRServo clamp;
     private CRServo drone;
+    private DcMotor rightHang;
+    private DcMotor leftHang;
+    private DcMotor slides;
 
     private int armPos;
 
@@ -26,6 +29,14 @@ public class armTest extends LinearOpMode {
         wrist = hardwareMap.get(Servo.class, "wrist");
         clamp = hardwareMap.get(CRServo.class, "clamp");
         drone = hardwareMap.get(CRServo.class, "drone");
+
+        rightHang = hardwareMap.get(DcMotor.class, "rightHang");
+        leftHang = hardwareMap.get(DcMotor.class, "leftHang");
+        slides = hardwareMap.get(DcMotor.class, "slides");
+
+        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftHang.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightHang.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -42,7 +53,7 @@ public class armTest extends LinearOpMode {
             telemetry.update();
             telemetry.addData("Arm Position:", armPos);
 
-
+            slides.setPower(gamepad1.right_stick_y * .5);
 
             if(gamepad1.dpad_left){
                 rotator.setPosition(.4);
@@ -101,7 +112,7 @@ public class armTest extends LinearOpMode {
             } else if(!gamepad1.a && !gamepad1.b){
 
                 arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER );
-                arm.setPower(gamepad1.left_stick_x * .5);
+                arm.setPower(-gamepad1.left_stick_x * .5);
             }
 
 
