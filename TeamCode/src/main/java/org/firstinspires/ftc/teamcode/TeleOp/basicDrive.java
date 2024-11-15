@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -8,14 +9,14 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+@Disabled
 
-@TeleOp
 public class basicDrive extends LinearOpMode {
 
-    private DcMotor lf;
-    private DcMotor lb;
-    private DcMotor rf;
-    private DcMotor rb;
+   private DcMotor lf;
+   private DcMotor lb;
+   private DcMotor rf;
+   private DcMotor rb;
 
     private DcMotor rightHang;
     private DcMotor arm;
